@@ -1,0 +1,59 @@
+:root {
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Pastel Theme Variables */
+  --bg-gradient: linear-gradient(135deg, #E0EAFC 0%, #CFDEF3 100%);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+  --text-main: #2D3748;
+  --text-secondary: #718096;
+  --text-accent: #5A67D8;
+
+  --primary-gradient: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  --secondary-gradient: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+
+  --card-radius: 20px;
+  --btn-radius: 12px;
+}
+
+body.dark-mode {
+  --bg-gradient: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  --glass-bg: rgba(26, 32, 44, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-main: #f7fafc;
+  --text-secondary: #a0aec0;
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-gradient);
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  max-width: 480px;
+  /* Mobile width constraint */
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 80px;
+  /* Space for bottom nav */
+}
+
+/* Scrollbar hiding */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
