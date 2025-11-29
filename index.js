@@ -3,124 +3,104 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
-exports.get = get;
-exports.getDependencies = getDependencies;
-exports.isInternal = isInternal;
-exports.list = void 0;
-exports.minVersion = minVersion;
-var _t = require("@babel/types");
-var _helpersGenerated = require("./helpers-generated.js");
-const {
-  cloneNode,
-  identifier
-} = _t;
-function deep(obj, path, value) {
-  try {
-    const parts = path.split(".");
-    let last = parts.shift();
-    while (parts.length > 0) {
-      obj = obj[last];
-      last = parts.shift();
-    }
-    if (arguments.length > 2) {
-      obj[last] = value;
+Object.defineProperty(exports, "ALIAS_KEYS", {
+  enumerable: true,
+  get: function () {
+    return _utils.ALIAS_KEYS;
+  }
+});
+Object.defineProperty(exports, "BUILDER_KEYS", {
+  enumerable: true,
+  get: function () {
+    return _utils.BUILDER_KEYS;
+  }
+});
+Object.defineProperty(exports, "DEPRECATED_ALIASES", {
+  enumerable: true,
+  get: function () {
+    return _deprecatedAliases.DEPRECATED_ALIASES;
+  }
+});
+Object.defineProperty(exports, "DEPRECATED_KEYS", {
+  enumerable: true,
+  get: function () {
+    return _utils.DEPRECATED_KEYS;
+  }
+});
+Object.defineProperty(exports, "FLIPPED_ALIAS_KEYS", {
+  enumerable: true,
+  get: function () {
+    return _utils.FLIPPED_ALIAS_KEYS;
+  }
+});
+Object.defineProperty(exports, "NODE_FIELDS", {
+  enumerable: true,
+  get: function () {
+    return _utils.NODE_FIELDS;
+  }
+});
+Object.defineProperty(exports, "NODE_PARENT_VALIDATIONS", {
+  enumerable: true,
+  get: function () {
+    return _utils.NODE_PARENT_VALIDATIONS;
+  }
+});
+Object.defineProperty(exports, "NODE_UNION_SHAPES__PRIVATE", {
+  enumerable: true,
+  get: function () {
+    return _utils.NODE_UNION_SHAPES__PRIVATE;
+  }
+});
+Object.defineProperty(exports, "PLACEHOLDERS", {
+  enumerable: true,
+  get: function () {
+    return _placeholders.PLACEHOLDERS;
+  }
+});
+Object.defineProperty(exports, "PLACEHOLDERS_ALIAS", {
+  enumerable: true,
+  get: function () {
+    return _placeholders.PLACEHOLDERS_ALIAS;
+  }
+});
+Object.defineProperty(exports, "PLACEHOLDERS_FLIPPED_ALIAS", {
+  enumerable: true,
+  get: function () {
+    return _placeholders.PLACEHOLDERS_FLIPPED_ALIAS;
+  }
+});
+exports.TYPES = void 0;
+Object.defineProperty(exports, "VISITOR_KEYS", {
+  enumerable: true,
+  get: function () {
+    return _utils.VISITOR_KEYS;
+  }
+});
+require("./core.js");
+require("./flow.js");
+require("./jsx.js");
+require("./misc.js");
+require("./experimental.js");
+require("./typescript.js");
+var _utils = require("./utils.js");
+var _placeholders = require("./placeholders.js");
+var _deprecatedAliases = require("./deprecated-aliases.js");
+Object.keys(_deprecatedAliases.DEPRECATED_ALIASES).forEach(deprecatedAlias => {
+  _utils.FLIPPED_ALIAS_KEYS[deprecatedAlias] = _utils.FLIPPED_ALIAS_KEYS[_deprecatedAliases.DEPRECATED_ALIASES[deprecatedAlias]];
+});
+for (const {
+  types,
+  set
+} of _utils.allExpandedTypes) {
+  for (const type of types) {
+    const aliases = _utils.FLIPPED_ALIAS_KEYS[type];
+    if (aliases) {
+      aliases.forEach(set.add, set);
     } else {
-      return obj[last];
-    }
-  } catch (e) {
-    e.message += ` (when accessing ${path})`;
-    throw e;
-  }
-}
-function permuteHelperAST(ast, metadata, bindingName, localBindings, getDependency, adjustAst) {
-  const {
-    locals,
-    dependencies,
-    exportBindingAssignments,
-    exportName
-  } = metadata;
-  const bindings = new Set(localBindings || []);
-  if (bindingName) bindings.add(bindingName);
-  for (const [name, paths] of (Object.entries || (o => Object.keys(o).map(k => [k, o[k]])))(locals)) {
-    let newName = name;
-    if (bindingName && name === exportName) {
-      newName = bindingName;
-    } else {
-      while (bindings.has(newName)) newName = "_" + newName;
-    }
-    if (newName !== name) {
-      for (const path of paths) {
-        deep(ast, path, identifier(newName));
-      }
+      set.add(type);
     }
   }
-  for (const [name, paths] of (Object.entries || (o => Object.keys(o).map(k => [k, o[k]])))(dependencies)) {
-    const ref = typeof getDependency === "function" && getDependency(name) || identifier(name);
-    for (const path of paths) {
-      deep(ast, path, cloneNode(ref));
-    }
-  }
-  adjustAst == null || adjustAst(ast, exportName, map => {
-    exportBindingAssignments.forEach(p => deep(ast, p, map(deep(ast, p))));
-  });
 }
-const helperData = Object.create(null);
-function loadHelper(name) {
-  if (!helperData[name]) {
-    const helper = _helpersGenerated.default[name];
-    if (!helper) {
-      throw Object.assign(new ReferenceError(`Unknown helper ${name}`), {
-        code: "BABEL_HELPER_UNKNOWN",
-        helper: name
-      });
-    }
-    helperData[name] = {
-      minVersion: helper.minVersion,
-      build(getDependency, bindingName, localBindings, adjustAst) {
-        const ast = helper.ast();
-        permuteHelperAST(ast, helper.metadata, bindingName, localBindings, getDependency, adjustAst);
-        return {
-          nodes: ast.body,
-          globals: helper.metadata.globals
-        };
-      },
-      getDependencies() {
-        return Object.keys(helper.metadata.dependencies);
-      }
-    };
-  }
-  return helperData[name];
-}
-function get(name, getDependency, bindingName, localBindings, adjustAst) {
-  {
-    if (typeof bindingName === "object") {
-      const id = bindingName;
-      if ((id == null ? void 0 : id.type) === "Identifier") {
-        bindingName = id.name;
-      } else {
-        bindingName = undefined;
-      }
-    }
-  }
-  return loadHelper(name).build(getDependency, bindingName, localBindings, adjustAst);
-}
-function minVersion(name) {
-  return loadHelper(name).minVersion;
-}
-function getDependencies(name) {
-  return loadHelper(name).getDependencies();
-}
-function isInternal(name) {
-  var _helpers$name;
-  return (_helpers$name = _helpersGenerated.default[name]) == null ? void 0 : _helpers$name.metadata.internal;
-}
-{
-  exports.ensure = name => {
-    loadHelper(name);
-  };
-}
-const list = exports.list = Object.keys(_helpersGenerated.default).map(name => name.replace(/^_/, ""));
-var _default = exports.default = get;
+const TYPES = exports.TYPES = [].concat(Object.keys(_utils.VISITOR_KEYS), Object.keys(_utils.FLIPPED_ALIAS_KEYS), Object.keys(_utils.DEPRECATED_KEYS));
 
 //# sourceMappingURL=index.js.map
